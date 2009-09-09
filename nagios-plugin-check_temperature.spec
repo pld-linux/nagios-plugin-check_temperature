@@ -1,13 +1,14 @@
 %define		plugin	check_temperature
 Summary:	Nagios plugin to check temperatures
 Name:		nagios-plugin-%{plugin}
-Version:	1.1
+Version:	1.2
 Release:	0.1
 License:	BSD
 Group:		Networking
 Source0:	http://www.hoppie.nl/tempsens/check_temperature
 # Source0-md5:	52af8cf292537680f9a624e41d557edf
 Patch0:		paths.patch
+Patch1:		compatible-devs.patch
 Source1:	%{plugin}.cfg
 URL:		http://www.hoppie.nl/tempsens/
 Requires:	nagios-core
@@ -24,6 +25,7 @@ device).
 %prep
 %setup -qcT
 cp -p %{SOURCE0} %{plugin}
+%patch0 -p1
 %patch0 -p1
 
 %install
