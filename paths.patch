@@ -1,0 +1,22 @@
+--- nagios-plugin-check_temperature/check_temperature~	2009-02-07 21:52:06.000000000 +0200
++++ nagios-plugin-check_temperature/check_temperature	2009-09-09 13:15:21.881460640 +0300
+@@ -24,8 +24,8 @@
+ #
+ # Howto Install in Nagios (tested with v1.3)
+ #
+-# 0. Make sure that Digitemp works and temperatures are written to the file:
+-#    /var/lib/temperature/current
++# 0. Make sure that Digitemp (or compatible) works and temperatures are written to the file:
++#    /var/run/temperature.state
+ #    as described at http://www.hoppie.nl/tempsens/ .
+ #
+ # 1. Copy this Perl script to /usr/local/nagios/libexec/ or wherever you have
+@@ -81,7 +81,7 @@
+             %exit_codes);
+ 
+ # Place to look for the temperature state file (may be customised here).
+-$temperature_state = '/var/lib/temperature/current';
++$temperature_state = '/var/run/temperature.state';
+ 
+ # Predefined exit codes for Nagios.
+ %exit_codes   = ('UNKNOWN' ,-1,
