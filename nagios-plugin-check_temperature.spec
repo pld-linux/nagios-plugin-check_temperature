@@ -9,8 +9,7 @@ Group:		Networking
 Source0:	http://www.hoppie.nl/tempsens/check_temperature
 # Source0-md5:	52af8cf292537680f9a624e41d557edf
 Patch0:		paths.patch
-# find, or resurrect the patch
-#Patch1:	compatible-devs.patch
+Patch1:		compatible-devs.patch
 Source1:	%{plugin}.cfg
 URL:		http://www.hoppie.nl/tempsens/
 BuildRequires:	rpm-perlprov >= 4.1-13
@@ -29,7 +28,7 @@ device).
 %setup -qcT
 cp -p %{SOURCE0} %{plugin}
 %patch0 -p1
-#%patch1 -p1
+%patch1 -p1
 
 %install
 rm -rf $RPM_BUILD_ROOT

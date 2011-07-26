@@ -1,0 +1,100 @@
+--- nagios-plugin-check_temperature-1.2/check_temperature	2011-07-26 22:49:36.578718626 +0300
++++ nagios-plugin-check_temperature-1.2/check_temperature	2009-09-09 14:49:44.000000000 +0300
+@@ -75,9 +75,9 @@
+ 
+ # Define all our variables.
+ use vars qw($temperature_state
+-            $opt_s $opt_t $opt_w $opt_c
++            $opt_s $opt_t $opt_w $opt_c $opt_p
+             $sensor $target $warn_dev $crit_dev
+-	    $temperature
++            $temperature $units
+             %exit_codes);
+ 
+ # Place to look for the temperature state file (may be customised here).
+@@ -94,7 +94,7 @@
+ {
+   &usage;
+ } else {
+-  getopts('s:t:w:c:');
++  getopts('s:t:w:c:p:');
+ }
+ 
+ # Shortcircuit the switches
+@@ -129,6 +129,7 @@
+ 
+ $warn_dev = $opt_w;
+ $crit_dev = $opt_c;
++$units = 'C';
+ 
+ # Read the output from digitemp, as plain temperature Centigrade.
+ # In order to avoid race conditions, a separate cron job usually placed in
+@@ -148,14 +149,17 @@
+ {
+   chomp;
+   # Select only the correct line.
+-  if( $_ =~ /Sensor $sensor/i )
+-  {
++  if (/Sensor $sensor C: ([0-9.-]+)/) {
+     # Extract the temperature in Centigrade. Allow more than 10 sensors and
+     # negative temperatures.
+-    /Sensor [0-9]+ C: ([0-9.-]+)/;
+     $temperature = $1;
+     last;
+   }
++  if ($sensor && /($sensor): ([0-9.]+)\s*(\S*)/) {
++    $temperature = $2;
++    $units = $3;
++    last;
++  }
+ }
+ close( DIGITEMP );
+ 
+@@ -163,37 +167,41 @@
+ if( $temperature==-9999 )
+ {
+   # No!
+-  print "No data found for sensor #$sensor\n";
++  print "No data found for sensor $sensor\n";
+   exit $exit_codes{'UNKNOWN'};
+ }
+ 
+ # Now for the real checks.
++# if sensor is numberic display it as "Temperature"
++$sensor = 'Temperature' unless $sensor;
+ if( $temperature and abs($target-$temperature) >= $crit_dev )
+ {
+-  print "Temperature CRITICAL - Sensor #$sensor = $temperature C\n";
++  print "CRITICAL - $sensor = $temperature$units\n";
+   exit $exit_codes{'CRITICAL'};
+ } elsif ($temperature and abs($target-$temperature) >= $warn_dev ) {
+-  print "Temperature WARNING - Sensor #$sensor = $temperature C\n";
++  print "WARNING - $sensor = $temperature$units\n";
+   exit $exit_codes{'WARNING'};
+ } elsif( $temperature ) {
+-  print "Temperature OK - Sensor #$sensor = $temperature C\n";
++  print "OK - $sensor = $temperature$units\n";
+   exit $exit_codes{'OK'};
+ } else {
+-  print "Error parsing result for sensor #$sensor\n";
++  print "Error parsing result for sensor $sensor\n";
+   exit $exit_codes{'UNKNOWN'};  
+ }
+ 
+ # Show usage
+ sub usage()
+ {
+-  print "check_temperature v1.1 - Nagios Plugin\n";
++  print "check_temperature v1.2 - Nagios Plugin\n";
+   print "Copyright 2006 Jeroen Hoppenbrouwers <hoppie\@hoppie.nl>\n";
++  print "Copyright 2009 Elan Ruusamäe <glen\@delfi.ee>\n";
+   print "More info: http://www.hoppie.nl/tempsens/\n";
+   print "See source for License and Nagios config example.\n\n";
+   print "Usage:\n";
+   print " check_temperature -s <sensor> -t <target> -w <warn> -c <crit>\n\n";
+   print "Options:\n";
+   print " -s n             DigiTemp Sensor #, default 0\n";
++  print " -p pattern       Use custom pattern for matching\n";
+   print " -t temperature   Target temperature in Centigrade, default 20\n";
+   print " -w deviation     Temperature deviation from target to warn (required)\n";
+   print " -c deviation     Temperature deviation from target when critical (required)\n\n";
