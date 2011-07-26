@@ -1,4 +1,5 @@
 %define		plugin	check_temperature
+%include	/usr/lib/rpm/macros.perl
 Summary:	Nagios plugin to check temperatures
 Name:		nagios-plugin-%{plugin}
 Version:	1.2
@@ -8,10 +9,12 @@ Group:		Networking
 Source0:	http://www.hoppie.nl/tempsens/check_temperature
 # Source0-md5:	52af8cf292537680f9a624e41d557edf
 Patch0:		paths.patch
-Patch1:		compatible-devs.patch
+# find, or resurrect the patch
+#Patch1:	compatible-devs.patch
 Source1:	%{plugin}.cfg
 URL:		http://www.hoppie.nl/tempsens/
-Requires:	nagios-core
+BuildRequires:	rpm-perlprov >= 4.1-13
+Requires:	nagios-common
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -26,13 +29,13 @@ device).
 %setup -qcT
 cp -p %{SOURCE0} %{plugin}
 %patch0 -p1
-%patch1 -p1
+#%patch1 -p1
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_sysconfdir},%{plugindir}}
 install -p %{plugin} $RPM_BUILD_ROOT%{plugindir}/%{plugin}
-sed -e 's,@plugindir@,%{plugindir},' %{SOURCE1} > $RPM_BUILD_ROOT%{_sysconfdir}/%{plugin}.cfg
+cp -p %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/%{plugin}.cfg
 
 %clean
 rm -rf $RPM_BUILD_ROOT
