@@ -1,5 +1,4 @@
 %define		plugin	check_temperature
-%include	/usr/lib/rpm/macros.perl
 Summary:	Nagios plugin to check temperatures
 Name:		nagios-plugin-%{plugin}
 Version:	1.2
